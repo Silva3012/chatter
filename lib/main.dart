@@ -21,6 +21,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chatter',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData().copyWith(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 17, 137, 177),
