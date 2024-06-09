@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:chatter/widgets/user_image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -12,10 +15,6 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _form = GlobalKey<FormState>();
-
-  var _isLogin = true;
-  var _enteredEmail = '';
-  var _enteredPassword = '';
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +45,12 @@ class _AuthScreenState extends State<AuthScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            if (!_isLogin)
+                              UserImagePicker(
+                                onPickImage: (pickedImage) {
+                                  _selectedImage = pickedImage;
+                                },
+                              ),
                             TextFormField(
                               decoration: const InputDecoration(
                                   labelText: 'Email Address'),
@@ -112,14 +117,21 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
+  var _isLogin = true;
+  var _enteredEmail = '';
+  var _enteredPassword = '';
+  File? _selectedImage;
+
   void _submit() async {
     final isValid = _form.currentState!.validate();
 
-    if (!isValid) {
+    if (!isValid || !_isLogin && _selectedImage == null) {
       return;
     }
 
     _form.currentState!.save();
+
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     try {
       if (_isLogin) {
@@ -133,8 +145,8 @@ class _AuthScreenState extends State<AuthScreen> {
       if (e.code == 'email-already-in-use') {
         // ...
       }
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
+      scaffoldMessenger.clearSnackBars();
+      scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text(e.message ?? 'Authentication Failed.'),
         ),
